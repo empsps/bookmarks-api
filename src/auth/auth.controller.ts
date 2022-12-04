@@ -8,7 +8,7 @@ export class AuthController {
   constructor(private service: AuthService) {}
 
   @Post('register')
-  register(@Body() dto: AuthDTO): Promise<User> {
+  register(@Body() dto: AuthDTO) {
     return this.service.register(dto);
   }
 
