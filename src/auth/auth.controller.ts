@@ -12,7 +12,7 @@ export class AuthController {
   }
 
   @Post('login')
-  login(): string {
-    return this.service.login();
+  login(@Body() dto: AuthDTO) {
+    return this.service.login(dto);
   }
 }
