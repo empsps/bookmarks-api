@@ -1,1 +1,1 @@
-export * from './get-user.decorator.ts';
+export * from './get-user.decorator';
