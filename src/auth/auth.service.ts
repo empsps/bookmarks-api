@@ -1,4 +1,8 @@
-import { ForbiddenException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  ForbiddenException,
+  Injectable,
+} from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { User } from '@prisma/client';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime';
@@ -15,28 +19,46 @@ export class AuthService {
     private config: ConfigService,
   ) {}
 
+  private isUsernameValid(username: string): boolean {
+    const isValid =
+      !!username.match(
+        /^(?!\.)(?=.{4,25}$)(?!.*[.]{2})[a-zA-Z0-9_.]+(?<![.])$/,
+      ) && !!username.match(/[a-zA-Z0-9]/);
+
+    return isValid;
+  }
+
   async register(dto: RegisterDTO) {
     const { email, password, username } = dto;
+
+    if (!this.isUsernameValid(username)) {
+      throw new BadRequestException(
+        'Username must have characters from A-Z, 0-9, underscores and dots. Must be 4 to 25 ' +
+          'characters long and must not begin or end with a dot.',
+      );
+    }
+
     const hash = await argonHash(password);
 
-    try {
-      const user = await this.prisma.user.create({
-        data: {
-          email,
-          username,
-          hash,
-        },
-      });
+    if (username)
+      try {
+        const user = await this.prisma.user.create({
+          data: {
+            email,
+            username,
+            hash,
+          },
+        });
 
-      return this.signToken(user.id, user.email);
-    } catch (error) {
-      if (error instanceof PrismaClientKnownRequestError) {
-        if ((error.code = 'P2002')) {
-          throw new ForbiddenException('E-mail is already in use');
+        return this.signToken(user.id, user.email);
+      } catch (error) {
+        if (error instanceof PrismaClientKnownRequestError) {
+          if ((error.code = 'P2002')) {
+            throw new ForbiddenException('E-mail is already in use');
+          }
         }
+        throw error;
       }
-      throw error;
-    }
   }
 
   private isEmail(credential: string): boolean {
