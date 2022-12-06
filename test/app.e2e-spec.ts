@@ -2,6 +2,8 @@ import { INestApplication, ValidationPipe } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
 import { AppModule } from '../src/app.module';
 import { PrismaService } from '../src/prisma/prisma.service';
+import { spec, request } from 'pactum';
+import { LoginDTO, RegisterDTO } from '../src/auth/dto';
 
 describe('app e2e', () => {
   let app: INestApplication;
@@ -19,20 +21,67 @@ describe('app e2e', () => {
       }),
     );
     await app.init();
+    await app.listen(3333);
 
     prisma = app.get(PrismaService);
     await prisma.cleanDb();
+    request.setBaseUrl('http://localhost:3333');
   });
 
   afterAll(() => app.close());
 
   describe('auth', () => {
     describe('register', () => {
-      it.todo('should register');
+      it('should throw exception if email empty', () => {
+        return spec()
+          .post('/auth/register')
+          .withBody({ username: 'test', password: 'testing' })
+          .expectStatus(400);
+      });
+
+      it('should throw exception if username empty', () => {
+        return spec()
+          .post('/auth/register')
+          .withBody({ email: 'test@test.com', password: 'testing' })
+          .expectStatus(400);
+      });
+
+      it('should throw exception if email is not valid', () => {
+        return spec()
+          .post('/auth/register')
+          .withBody({ email: 'test@', username: 'test', password: 'testing' })
+          .expectStatus(400);
+      });
+
+      const dto: RegisterDTO = {
+        email: 'test@test.com',
+        username: 'testuser',
+        password: 'testing',
+      };
+
+      it('should register a new user', () => {
+        return spec().post('/auth/register').withBody(dto).expectStatus(201);
+      });
     });
 
-    describe('login', () => {
-      it.todo('should login');
+    describe('login with username', () => {
+      const dto: LoginDTO = {
+        credential: 'testuser',
+        password: 'testing',
+      };
+      it('should login with the test user', () => {
+        return spec().post('/auth/login').withBody(dto).expectStatus(200);
+      });
+    });
+
+    describe('login with email', () => {
+      const dto: LoginDTO = {
+        credential: 'test@test.com',
+        password: 'testing',
+      };
+      it('should login with the test user', () => {
+        return spec().post('/auth/login').withBody(dto).expectStatus(200);
+      });
     });
   });
 
