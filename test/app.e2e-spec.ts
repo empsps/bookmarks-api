@@ -46,6 +46,17 @@ describe('app e2e', () => {
           .expectStatus(400);
       });
 
+      it('should throw exception if password empty', () => {
+        return spec()
+          .post('/auth/register')
+          .withBody({ email: 'test@test.com' })
+          .expectStatus(400);
+      });
+
+      it('should throw exception if body empty', () => {
+        return spec().post('/auth/register').expectStatus(400);
+      });
+
       it('should throw exception if email is not valid', () => {
         return spec()
           .post('/auth/register')
@@ -53,34 +64,74 @@ describe('app e2e', () => {
           .expectStatus(400);
       });
 
-      const dto: RegisterDTO = {
-        email: 'test@test.com',
-        username: 'testuser',
-        password: 'testing',
-      };
-
       it('should register a new user', () => {
-        return spec().post('/auth/register').withBody(dto).expectStatus(201);
+        return spec()
+          .post('/auth/register')
+          .withBody({
+            email: 'test@test.com',
+            username: 'testuser',
+            password: 'testing',
+          })
+          .expectStatus(201);
+      });
+
+      it('should throw exception if email is already in use', () => {
+        return spec()
+          .post('/auth/register')
+          .withBody({
+            email: 'test@test.com',
+            username: 'testuser',
+            password: 'testing',
+          })
+          .expectStatus(403);
       });
     });
 
-    describe('login with username', () => {
-      const dto: LoginDTO = {
-        credential: 'testuser',
-        password: 'testing',
-      };
-      it('should login with the test user', () => {
-        return spec().post('/auth/login').withBody(dto).expectStatus(200);
+    describe('login', () => {
+      describe('login with username', () => {
+        it('should login with the test user', () => {
+          return spec()
+            .post('/auth/login')
+            .withBody({
+              credential: 'testuser',
+              password: 'testing',
+            })
+            .expectStatus(200);
+        });
       });
-    });
 
-    describe('login with email', () => {
-      const dto: LoginDTO = {
-        credential: 'test@test.com',
-        password: 'testing',
-      };
-      it('should login with the test user', () => {
-        return spec().post('/auth/login').withBody(dto).expectStatus(200);
+      describe('login with email', () => {
+        it('should login with the test user', () => {
+          return spec()
+            .post('/auth/login')
+            .withBody({
+              credential: 'test@test.com',
+              password: 'testing',
+            })
+            .expectStatus(200);
+        });
+      });
+
+      it('should throw exception if no credential', () => {
+        return spec()
+          .post('/auth/login')
+          .withBody({
+            password: 'testing',
+          })
+          .expectStatus(400);
+      });
+
+      it('should throw exception if no password', () => {
+        return spec()
+          .post('/auth/login')
+          .withBody({
+            username: 'testuser',
+          })
+          .expectStatus(400);
+      });
+
+      it('should throw exception if no body', () => {
+        return spec().post('/auth/login').expectStatus(400);
       });
     });
   });
