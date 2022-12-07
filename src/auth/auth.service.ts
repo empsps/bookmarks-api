@@ -71,6 +71,10 @@ export class AuthService {
 
   async login(dto: LoginDTO) {
     const { credential, password } = dto;
+    if (!credential) {
+      throw new BadRequestException('a username or email must be provided');
+    }
+
     let user: User | null;
 
     switch (this.isEmail(credential)) {
