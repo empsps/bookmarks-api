@@ -189,14 +189,138 @@ describe('app e2e', () => {
   });
 
   describe('bookmarks', () => {
-    describe('create bookmark', () => {});
+    describe('create bookmark', () => {
+      const dto = {
+        title: 'Test',
+        description: 'Testing',
+        link: 'testing.com',
+      };
 
-    describe('get bookmarks', () => {});
+      it('should create a new bookmark', () => {
+        return spec()
+          .post('/bookmarks')
+          .withHeaders({ Authorization: 'Bearer $S{userAccessToken}' })
+          .withBody(dto)
+          .expectStatus(201)
+          .expectBodyContains(dto.title)
+          .expectBodyContains(dto.description)
+          .expectBodyContains(dto.link)
+          .stores('bookmarkId', 'id');
+      });
 
-    describe('get bookmark by id', () => {});
+      it('should throw if title missing', () => {
+        return spec()
+          .post('/bookmarks')
+          .withHeaders({ Authorization: 'Bearer $S{userAccessToken}' })
+          .withBody({
+            ...dto,
+            title: '',
+          })
+          .expectStatus(400);
+      });
 
-    describe('edit bookmark by id', () => {});
+      it('should work if description missing', () => {
+        return spec()
+          .post('/bookmarks')
+          .withHeaders({ Authorization: 'Bearer $S{userAccessToken}' })
+          .withBody({
+            ...dto,
+            description: '',
+          })
+          .expectStatus(201);
+      });
 
-    describe('delete bookmark by id', () => {});
+      it('should throw if link missing', () => {
+        return spec()
+          .post('/bookmarks')
+          .withHeaders({ Authorization: 'Bearer $S{userAccessToken}' })
+          .withBody({
+            ...dto,
+            link: '',
+          })
+          .expectStatus(400);
+      });
+    });
+
+    describe('get bookmarks', () => {
+      it('should throw if userId missing', () => {
+        return spec().get('/bookmarks').expectStatus(401);
+      });
+
+      it('should get bookmarks', () => {
+        return spec()
+          .get('/bookmarks')
+          .withHeaders({ Authorization: 'Bearer $S{userAccessToken}' })
+          .expectStatus(200);
+      });
+    });
+
+    describe('get bookmark by id', () => {
+      it('should get bookmarks', () => {
+        return spec()
+          .get('/bookmarks/$S{bookmarkId}')
+          .withHeaders({ Authorization: 'Bearer $S{userAccessToken}' })
+          .expectStatus(200);
+      });
+
+      it('should throw if no id', () => {
+        return spec()
+          .get('/bookmarks/a')
+          .withHeaders({ Authorization: 'Bearer $S{userAccessToken}' })
+          .expectStatus(400);
+      });
+
+      it('should throw if no userId', () => {
+        return spec().get('/bookmarks/$S{bookmarkId}').expectStatus(401);
+      });
+    });
+
+    describe('edit bookmark by id', () => {
+      const dto = {
+        title: 'Test2',
+        description: 'Testing2',
+        link: 'testing2.com',
+      };
+
+      it('should edit the bookmark', () => {
+        return spec()
+          .patch('/bookmarks/edit/$S{bookmarkId}')
+          .withHeaders({ Authorization: 'Bearer $S{userAccessToken}' })
+          .withBody(dto)
+          .expectStatus(200)
+          .expectBodyContains(dto.title)
+          .expectBodyContains(dto.description)
+          .expectBodyContains(dto.link);
+      });
+
+      it('should throw if no id', () => {
+        return spec()
+          .patch('/bookmarks/edit/')
+          .withHeaders({ Authorization: 'Bearer $S{userAccessToken}' })
+          .expectStatus(404);
+      });
+    });
+
+    describe('delete bookmark by id', () => {
+      it('should delete the bookmark', () => {
+        return spec()
+          .delete('/bookmarks/delete/$S{bookmarkId}')
+          .withHeaders({ Authorization: 'Bearer $S{userAccessToken}' })
+          .expectStatus(200);
+      });
+
+      it('should throw if no id', () => {
+        return spec()
+          .delete('/bookmarks/delete/')
+          .withHeaders({ Authorization: 'Bearer $S{userAccessToken}' })
+          .expectStatus(404);
+      });
+
+      it('should throw if no userId', () => {
+        return spec()
+          .delete('/bookmarks/delete/$S{bookmarkId}')
+          .expectStatus(401);
+      });
+    });
   });
 });
