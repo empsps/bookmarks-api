@@ -149,7 +149,43 @@ describe('app e2e', () => {
       });
     });
 
-    describe('edit user', () => {});
+    describe('edit user', () => {
+      const dto = {
+        firstName: 'Test',
+        lastName: 'Silva',
+        email: 'email@test.com',
+      };
+
+      it('should edit the user', () => {
+        return spec()
+          .patch('/users')
+          .withBody(dto)
+          .withHeaders({ Authorization: 'Bearer $S{userAccessToken}' })
+          .expectStatus(200)
+          .expectBodyContains(dto.firstName)
+          .expectBodyContains(dto.lastName)
+          .expectBodyContains(dto.email);
+      });
+
+      it('should throw if invalid email', () => {
+        return spec()
+          .patch('/users')
+          .withBody({
+            firstName: 'Test',
+            lastName: 'Silva',
+            email: 'email@test',
+          })
+          .withHeaders({ Authorization: 'Bearer $S{userAccessToken}' })
+          .expectStatus(400);
+      });
+
+      it('should throw if invalid dto', () => {
+        return spec()
+          .patch('/users')
+          .withHeaders({ Authorization: 'Bearer $S{userAccessToken}' })
+          .expectStatus(400);
+      });
+    });
   });
 
   describe('bookmarks', () => {
