@@ -28,37 +28,51 @@ export class AuthService {
     return isValid;
   }
 
+  private async findUserByEmail(email: string) {
+    return this.prisma.user.findUnique({
+      where: {
+        email,
+      },
+    });
+  }
+
+  private async findUserByUsername(username: string) {
+    return this.prisma.user.findUnique({
+      where: {
+        username,
+      },
+    });
+  }
+
   async register(dto: RegisterDTO) {
     const { email, password, username } = dto;
 
+    if (await this.findUserByEmail(email)) {
+      throw new ForbiddenException('E-mail already in use');
+    }
+
+    if (await this.findUserByUsername(username)) {
+      throw new ForbiddenException('Username already in use');
+    }
+
     if (!this.isUsernameValid(username)) {
       throw new BadRequestException(
-        'Username must have characters from A-Z, 0-9, underscores and dots. Must be 4 to 25 ' +
+        'Username must have letters, numbers, underscores and dots. Must be 4 to 25 ' +
           'characters long and must not begin or end with a dot.',
       );
     }
 
     const hash = await argonHash(password);
 
-    if (username)
-      try {
-        const user = await this.prisma.user.create({
-          data: {
-            email,
-            username,
-            hash,
-          },
-        });
+    const user = await this.prisma.user.create({
+      data: {
+        email,
+        username,
+        hash,
+      },
+    });
 
-        return this.signToken(user.id, user.email);
-      } catch (error) {
-        if (error instanceof PrismaClientKnownRequestError) {
-          if ((error.code = 'P2002')) {
-            throw new ForbiddenException('E-mail is already in use');
-          }
-        }
-        throw error;
-      }
+    return this.signToken(user.id, user.email);
   }
 
   private isEmail(credential: string): boolean {

@@ -1,1 +1,1 @@
-export * from './bookmark.dto.ts';
+export * from './bookmark.dto';
