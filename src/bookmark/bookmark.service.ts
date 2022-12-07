@@ -44,7 +44,7 @@ export class BookmarkService {
   }
 
   async editBookmarkById(userId: string, id: string, dto: EditBookmarkDTO) {
-    const bookmark = await this.prisma.bookmark.findUnique({
+    let bookmark = await this.prisma.bookmark.findUnique({
       where: {
         id,
       },
@@ -56,7 +56,7 @@ export class BookmarkService {
       );
     }
 
-    await this.prisma.bookmark.update({
+    bookmark = await this.prisma.bookmark.update({
       where: {
         id,
       },
