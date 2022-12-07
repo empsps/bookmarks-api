@@ -262,6 +262,13 @@ describe('app e2e', () => {
           .expectStatus(200);
       });
 
+      it('should throw because invalid id', () => {
+        return spec()
+          .get('/bookmarks/122343f6-ce71-470e-9142-8e3a66e56f9a')
+          .withHeaders({ Authorization: 'Bearer $S{userAccessToken}' })
+          .expectStatus(404);
+      });
+
       it('should throw if no id', () => {
         return spec()
           .get('/bookmarks/a')

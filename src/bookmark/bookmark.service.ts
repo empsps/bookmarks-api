@@ -1,4 +1,4 @@
-import { ForbiddenException, Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateBookmarkDTO, EditBookmarkDTO } from './dto/bookmark.dto';
 
@@ -23,9 +23,9 @@ export class BookmarkService {
       },
     });
 
-    if (bookmark.userId !== userId) {
-      throw new ForbiddenException(
-        "the requested bookmark doesn't belong to this user",
+    if (!bookmark || bookmark.userId !== userId) {
+      throw new NotFoundException(
+        "the requested bookmark coulnd't be found or doesn't belong to this user",
       );
     }
 
@@ -50,9 +50,9 @@ export class BookmarkService {
       },
     });
 
-    if (bookmark.userId !== userId) {
-      throw new ForbiddenException(
-        "the requested bookmark doesn't belong to this user",
+    if (!bookmark || bookmark.userId !== userId) {
+      throw new NotFoundException(
+        "the requested bookmark coulnd't be found or doesn't belong to this user",
       );
     }
 
@@ -75,9 +75,9 @@ export class BookmarkService {
       },
     });
 
-    if (bookmark.userId !== userId) {
-      throw new ForbiddenException(
-        "the requested bookmark doesn't belong to this user",
+    if (!bookmark || bookmark.userId !== userId) {
+      throw new NotFoundException(
+        "the requested bookmark coulnd't be found or doesn't belong to this user",
       );
     }
 
