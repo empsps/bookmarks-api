@@ -108,7 +108,8 @@ describe('app e2e', () => {
               credential: 'test@test.com',
               password: 'testing',
             })
-            .expectStatus(200);
+            .expectStatus(200)
+            .stores('userAccessToken', 'access_token');
         });
       });
 
@@ -137,7 +138,16 @@ describe('app e2e', () => {
   });
 
   describe('user', () => {
-    describe('get current user', () => {});
+    describe('get current user', () => {
+      it('should get current user', () => {
+        return spec()
+          .get('/users/me')
+          .withHeaders({
+            Authorization: 'Bearer $S{userAccessToken}',
+          })
+          .expectStatus(200);
+      });
+    });
 
     describe('edit user', () => {});
   });
@@ -149,8 +159,8 @@ describe('app e2e', () => {
 
     describe('get bookmark by id', () => {});
 
-    describe('edit bookmark', () => {});
+    describe('edit bookmark by id', () => {});
 
-    describe('delete bookmark', () => {});
+    describe('delete bookmark by id', () => {});
   });
 });
