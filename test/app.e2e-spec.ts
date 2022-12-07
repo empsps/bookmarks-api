@@ -312,7 +312,7 @@ describe('app e2e', () => {
         return spec()
           .delete('/bookmarks/delete/$S{bookmarkId}')
           .withHeaders({ Authorization: 'Bearer $S{userAccessToken}' })
-          .expectStatus(200);
+          .expectStatus(204);
       });
 
       it('should throw if no id', () => {

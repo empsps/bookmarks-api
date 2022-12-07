@@ -86,7 +86,5 @@ export class BookmarkService {
         id,
       },
     });
-
-    return bookmark;
   }
 }
