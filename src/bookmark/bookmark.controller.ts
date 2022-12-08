@@ -20,11 +20,11 @@ import { CreateBookmarkDTO, EditBookmarkDTO } from './dto/bookmark.dto';
 
 @UseGuards(JwtGuard)
 @Controller('bookmarks')
-@UseInterceptors(CacheInterceptor)
 export class BookmarkController {
   constructor(private service: BookmarkService) {}
 
   @Get()
+  @UseInterceptors(CacheInterceptor)
   getAllBookmarks(@GetUser('id') userId: string) {
     return this.service.getAllBookmarks(userId);
   }
