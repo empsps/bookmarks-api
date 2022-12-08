@@ -1,5 +1,6 @@
 import {
   Body,
+  CacheInterceptor,
   Controller,
   Delete,
   Get,
@@ -10,6 +11,7 @@ import {
   Patch,
   Post,
   UseGuards,
+  UseInterceptors,
 } from '@nestjs/common';
 import { GetUser } from '../auth/decorator';
 import { JwtGuard } from '../auth/guard';
@@ -18,6 +20,7 @@ import { CreateBookmarkDTO, EditBookmarkDTO } from './dto/bookmark.dto';
 
 @UseGuards(JwtGuard)
 @Controller('bookmarks')
+@UseInterceptors(CacheInterceptor)
 export class BookmarkController {
   constructor(private service: BookmarkService) {}
 
